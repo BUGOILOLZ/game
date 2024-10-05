@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Falling Items Game</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #87CEEB; }
+        #gameContainer { position: relative; width: 400px; height: 600px; border: 2px solid #000; overflow: hidden; background-color: #fff; }
+        .basket { position: absolute; bottom: 0; width: 100px; height: 20px; background-color: #ff6347; left: 50%; transform: translateX(-50%); }
+        .item { position: absolute; width: 30px; height: 30px; background-color: #32CD32; }
+        .score { position: absolute; top: 10px; left: 10px; font-size: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div class="score" id="score">Score: 0</div>
+    <div class="basket" id="basket"></div>
+</div>
+
+<script>
+    const basket = document.getElementById('basket');
+    const gameContainer = document.getElementById('gameContainer');
+    const scoreDisplay = document.getElementById('score');
+    let score = 0;
+
+    document.addEventListener('mousemove', (event) => {
+        const containerRect = gameContainer.getBoundingClientRect();
+        const basketWidth = basket.offsetWidth;
+        const mouseX = event.clientX - containerRect.left;
+        const basketX = Math.min(containerRect.width - basketWidth, Math.max(0, mouseX - basketWidth / 2));
+        basket.style.left = basketX + 'px';
+    });
+
+    function createItem() {
+        const item = document.createElement('div');
+        item.classList.add('item');
+        item.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16); // Random color
+        item.style.left = Math.random() * (gameContainer.clientWidth - 30) + 'px';
+        gameContainer.appendChild(item);
+        moveItem(item);
+    }
+
+    function moveItem(item) {
+        let position = 0;
+        const fallSpeed = 2;
+        
+        const dropInterval = setInterval(() => {
+            position += fallSpeed;
+            item.style.top = position + 'px';
+            
+            if (position > gameContainer.clientHeight) {
+                clearInterval(dropInterval);
+                item.remove();
+            }
+
+            if (position + 30 >= gameContainer.clientHeight - 20 && 
+                parseInt(item.style.left) + 30 > parseInt(basket.style.left) && 
+                parseInt(item.style.left) < parseInt(basket.style.left) + 100) {
+                clearInterval(dropInterval);
+                item.remove();
+                score++;
+                scoreDisplay.textContent = 'Score: ' + score;
+            }
+        }, 20);
+    }
+
+    setInterval(createItem, 1000);
+</script>
+
+</body>
+</html>
